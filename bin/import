@@ -1,0 +1,22 @@
+#! /usr/bin/env ruby
+
+require 'bundler/inline'
+
+gemfile do
+  source 'https://rubygems.org'
+  gem 'redis', '4.1.0'
+end
+
+DIFF_FILE = 'diff.yml'
+
+redis = Redis.new
+diff = redis.get(DIFF_FILE)
+if diff
+  File.write(DIFF_FILE, diff)
+end
+
+Bundler.with_original_env do
+  system "embulk run config.yml.liquid --bundle . --config-diff diff.yml", exception: true
+end
+
+redis.set(DIFF_FILE, File.read(DIFF_FILE))

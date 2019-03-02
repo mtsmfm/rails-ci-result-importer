@@ -1,0 +1,22 @@
+in:
+  type: travis
+  repo: rails/rails
+  build_num_from: 59000
+  build_num_to: 59000
+  token: "{{ env.TRAVIS_TOKEN }}"
+  step: 10
+out:
+  type: bigquery
+  mode: append
+  abort_on_error: false
+  prevent_duplicate_insert: true
+  ignore_duplicate_error: true
+  auth_method: json_key
+  json_keyfile:
+    content: |
+      {{ env.GCP_JSON_KEYFILE_CONTENT }}
+  project: rails-travis-result
+  dataset: rails_travis_result
+  table: jobs
+  compression: GZIP
+  source_format: NEWLINE_DELIMITED_JSON
