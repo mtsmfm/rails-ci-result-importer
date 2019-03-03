@@ -18,5 +18,9 @@ out:
   project: rails-travis-result
   dataset: rails_travis_result
   table: jobs
+  auto_create_table: true
   compression: GZIP
   source_format: NEWLINE_DELIMITED_JSON
+  time_partitioning:
+    type: DAY
+    field: started_at
