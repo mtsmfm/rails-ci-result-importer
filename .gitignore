@@ -1,2 +1,5 @@
 *.env
 diff.yml
+node_modules
+/parser/out/
+/parser/tmp/
