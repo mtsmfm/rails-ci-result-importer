@@ -9,7 +9,7 @@ end
 
 DIFF_FILE = 'diff.yml'
 
-10.times do
+5.times do
   redis = Redis.new
   diff = redis.get(DIFF_FILE)
   if diff
