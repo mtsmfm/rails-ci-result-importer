@@ -19,3 +19,11 @@ SELECT (SELECT c FROM x WHERE x.s = "passed") / (SELECT SUM(x.c) FROM x) * 100
 ```
 
 https://console.cloud.google.com/bigquery?p=rails-travis-result&d=rails_travis_result&page=dataset
+
+## Important notice as of 2019/03/22
+
+- This dataset doesn’t have all results
+- Some rows don’t have commit_data
+- I paid to store this dataset but you need to pay money to run query
+  - Be sure to query with “WHERE started_at”
+  - Full scan costs only \$0.2 but amount of data keeps increasing
