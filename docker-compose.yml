@@ -13,10 +13,5 @@ services:
       - redis
   redis:
     image: redis:alpine
-  node:
-    image: node:10.15.2
-    working_dir: /app/parser
-    volumes:
-      - .:/app:cached
 volumes:
   home:
