@@ -11,15 +11,15 @@ USER app
 
 WORKDIR /app
 
-COPY --chown=app Gemfile .
-COPY --chown=app Gemfile.lock .
-
 ENV BUNDLE_PATH=/app/vendor/bundle
 ENV BUNDLE_GEMFILE=/app/Gemfile
 ENV BUNDLE_JOBS=4
 
-RUN embulk bundle install
+RUN gem install unofficial_buildkite_client google-cloud-bigquery sentry-raven redis
 
-RUN gem install redis -v 4.1.0
+COPY --chown=app Gemfile .
+COPY --chown=app Gemfile.lock .
+
+RUN embulk bundle install
 
 COPY --chown=app . .
