@@ -1,24 +1,46 @@
 #! /usr/bin/env ruby
-
-require 'bundler/inline'
+require "bundler/inline"
 
 gemfile do
   source 'https://rubygems.org'
-  gem 'redis', '4.1.0'
+
+  gem "unofficial_buildkite_client"
+  gem "google-cloud-bigquery", require: "google/cloud/bigquery"
 end
 
-DIFF_FILE = 'diff.yml'
+class Workflow
+  FIRST_BUILD_NUMBER = 58431
+  BATCH_SIZE = (ENV['BATCH_SIZE'] || 1).to_i
 
-5.times do
-  redis = Redis.new
-  diff = redis.get(DIFF_FILE)
-  if diff
-    File.write(DIFF_FILE, diff)
+  def run
+    latest_imported_build_number = bigquery_dataset.query("SELECT MAX(build_number) as num FROM `rails_ci_result.buildkite_jobs`").dig(0, :num) || 1
+    latest_finished_build_number = buildkite_client.fetch_builds(first: 1, state: %w(PASSED FAILED)).first[:number]
+
+    not_imported_build_numbers = bigquery_dataset.query(<<~SQL).map {|build_number:| build_number }
+      WITh X AS (SELECT build_number FROM UNNEST(GENERATE_ARRAY(#{FIRST_BUILD_NUMBER}, (SELECT MAX(build_number) FROM `rails_ci_result.buildkite_jobs`))) AS build_number)
+      SELECT build_number FROM X EXCEPT DISTINCT SELECT build_number FROM `rails_ci_result.buildkite_jobs` ORDER BY build_number DESC LIMIT #{BATCH_SIZE};
+    SQL
+
+    ((latest_imported_build_number..latest_finished_build_number).to_a + not_imported_build_numbers).uniq.sort.last(BATCH_SIZE).each do |build_number|
+      Bundler.with_original_env do
+        system("BUILDKITE_IMPORT_TARGET_BUILD_NUMS=#{build_number} embulk -J-Xmx500m run config.yml.liquid --bundle .")
+      end
+    end
   end
 
-  Bundler.with_original_env do
-    system "embulk run config.yml.liquid --bundle . --config-diff diff.yml", exception: true
+  private
+
+  def buildkite_client
+    @buildkite_client ||= UnofficialBuildkiteClient.new(org_slug: "rails", pipeline_slug: "rails")
   end
 
-  redis.set(DIFF_FILE, File.read(DIFF_FILE))
+  def bigquery_client
+    @bigquery_client ||= Google::Cloud::Bigquery.new
+  end
+
+  def bigquery_dataset
+    @bigquery_dataset ||= bigquery_client.dataset("rails_ci_result")
+  end
 end
+
+Workflow.new.run

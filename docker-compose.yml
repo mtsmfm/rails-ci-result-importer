@@ -1,17 +1,10 @@
 version: "3.7"
 services:
-  embulk:
+  app:
     build: .
     volumes:
       - .:/app:cached
       - home:/home/app
-    environment:
-      REDIS_URL: redis://redis:6379
-    env_file:
-      - embulk.env
-    depends_on:
-      - redis
-  redis:
-    image: redis:alpine
+    env_file: app.env
 volumes:
   home:

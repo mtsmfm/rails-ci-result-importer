@@ -1,10 +1,9 @@
 in:
-  type: travis
-  repo: rails/rails
-  build_num_from: 59000
-  build_num_to: 59000
-  token: "{{ env.TRAVIS_TOKEN }}"
-  step: 0
+  type: buildkite
+  org_slug: rails
+  pipeline_slug: rails
+  build_nums: [{{ env.BUILDKITE_IMPORT_TARGET_BUILD_NUMS }}]
+  token: "{{ env.BUILDKITE_ACCESS_TOKEN }}"
 out:
   type: bigquery
   mode: append
@@ -14,13 +13,13 @@ out:
   auth_method: json_key
   json_keyfile:
     content: |
-      {{ env.GCP_JSON_KEYFILE_CONTENT }}
-  project: rails-travis-result
-  dataset: rails_travis_result
-  table: jobs
+      {{ env.BIGQUERY_CREDENTIALS }}
+  project: rails-ci-result
+  dataset: rails_ci_result
+  table: buildkite_jobs
   auto_create_table: true
   compression: GZIP
   source_format: NEWLINE_DELIMITED_JSON
   time_partitioning:
     type: DAY
-    field: started_at
+    field: created_at
