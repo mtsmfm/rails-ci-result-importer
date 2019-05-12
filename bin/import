@@ -41,7 +41,7 @@ class Workflow
           failed_data.delete(build_number.to_s)
         else
           logger.error(output)
-          Raven.capture_message(output, backtrace: output.lines.last(100), fingerprint: %w(ImportError error))
+          Raven.capture_message(output.byteslice(-Raven::Event::MAX_MESSAGE_SIZE_IN_BYTES..-1), backtrace: output.lines.last(100), fingerprint: %w(ImportError error))
 
           failed_data[build_number.to_s] ||= 0
           failed_data[build_number.to_s] += 1
