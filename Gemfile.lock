@@ -13,7 +13,7 @@ GEM
       liquid (~> 4.0.0)
       msgpack (~> 1.1.0)
       rjack-icu (~> 4.54.1.1)
-    embulk-input-buildkite (0.5.1)
+    embulk-input-buildkite (0.6.0)
       unofficial_buildkite_client (= 0.5.0)
     embulk-output-bigquery (0.4.13)
       google-api-client
