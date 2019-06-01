@@ -14,6 +14,7 @@ WORKDIR /app
 ENV BUNDLE_PATH=/app/vendor/bundle
 ENV BUNDLE_GEMFILE=/app/Gemfile
 ENV BUNDLE_JOBS=4
+ENV LANG=C.UTF-8
 
 RUN gem install unofficial_buildkite_client google-cloud-bigquery sentry-raven redis
 
